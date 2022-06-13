@@ -2,9 +2,10 @@
 % Input: Y: observed matrix
 % hatX: initialization; X: underlying parameter matrix;
 % q: sparsity level of the gross error; r: input rank; p1, p2: matrix dimension
+% threshold_ratio: threshold ratio in the thresholding operator F
 % iter_max: the maximum number of iterations
 % Here the threshold.m function is from the code of paper "Robust PCA by Manifold Optimization" by Teng Zhang and Yi Yang.
-function [error_matrix, succ_tag] = RISRO_robust_PCA(Y,hatX,X, q, r, p1, p2, iter_max,tol, succ_tol)
+function [error_matrix, succ_tag] = RISRO_robust_PCA(Y,hatX,X, q, r, p1, p2,threshold_ratio, iter_max,tol, succ_tol)
     [U0,~,V0] = svds(hatX,r);
     Ut = U0;
     Ut_perp = null(Ut');
@@ -12,7 +13,7 @@ function [error_matrix, succ_tag] = RISRO_robust_PCA(Y,hatX,X, q, r, p1, p2, ite
     Vt_perp = null(Vt');
     rela_err = norm(hatX - X, 'fro')/norm(X, 'fro');
     sparsity = ones(p1,p2);
-    [~, select_index] = threshold(Y - hatX, 2 * q, sparsity);
+    [~, select_index] = threshold(Y - hatX, threshold_ratio * q, sparsity);
     [y_grid,x_grid] = meshgrid(1:p2, 1:p1);
     newx_grid = x_grid.*select_index;
     newy_grid = y_grid.*select_index;
@@ -49,7 +50,7 @@ function [error_matrix, succ_tag] = RISRO_robust_PCA(Y,hatX,X, q, r, p1, p2, ite
         Ut_perp = null(Ut');
         Vt_perp = null(Vt');
         rela_err = norm(hatX1 - X, 'fro')/norm(X, 'fro');
-        [~, select_index] = threshold(Y - hatX1, 2 * q, sparsity);
+        [~, select_index] = threshold(Y - hatX1, threshold_ratio * q, sparsity);
         newx_grid = x_grid.*select_index;
         newy_grid = y_grid.*select_index;
         newx_grid = newx_grid(:);
@@ -66,5 +67,5 @@ function [error_matrix, succ_tag] = RISRO_robust_PCA(Y,hatX,X, q, r, p1, p2, ite
         succ_tag = 1;
     else
         succ_tag = 0;
-    end
+    end 
 end

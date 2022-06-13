@@ -25,16 +25,18 @@ sparsity = ones(p1,p2);
 % sparsity level of the gross error
 q = 0.02;
 A = binornd(1,q*ones(p1));
-S = 0*randn(p1,p2);
+S = 10*randn(p1,p2);
 S = S.* A;
 Y = S + X;
 
-[X0, select_index] = threshold(Y, 2 * q, sparsity);
+threshold_ratio = 5;
+
+[X0, select_index] = threshold(Y, threshold_ratio * q, sparsity);
 [U0,Sigma0,V0] = svds(X0, r);
 X_init = U0 * Sigma0 * V0';
 
-
-[error_matrix,~] = RISRO_robust_PCA(Y, X_init, X, q, r, p1, p2, iter_max, tol, succ_tol);
+ 
+[error_matrix,~] = RISRO_robust_PCA(Y, X_init, X, q, r, p1, p2, threshold_ratio, iter_max, tol, succ_tol);
 array2table(error_matrix)
 time = toc;
 time
